@@ -346,6 +346,25 @@ export class Disassembler extends EventEmitter {
 		this.no_warning_disassemble_unassigned_memory = true;
 	}
 
+	/**
+ * Reads a .bin (MSX binary) file directly. Takes the start address from the .bin file.
+ * @param path The file path to a binary file.
+ */
+	public readMSXBinFile(path: string) {
+		let msxbin = readFileSync(path);
+		const header = msxbin.slice(0, 7);
+		const bin = msxbin.slice(7);
+		// Read start address
+		const origin = header[1] + 256 * header[2];
+		const start = header[5] + 256 * header[6];	// Stackpointer
+		this.setMemory(origin, bin);
+
+		// Set start label
+		// this.setLabel(start, 'BIN_LBL_MAIN_START_' + start.toString(16).toUpperCase(), NumberType.CODE_LBL);
+		this.setFixedCodeLabel(start, "START");
+		// this.snaStartAddress = start;
+	}
+
 
 	/**
 	 * Clears all labels collected so far.

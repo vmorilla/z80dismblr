@@ -20,19 +20,19 @@ class Startup {
     protected static dasm = new Disassembler();
 
     /// The disassembly output file path.
-    protected static outPath: string|undefined;
+    protected static outPath: string | undefined;
 
     /// The caller-graph dot (graphviz) output path.
-    protected static callGraphOutPath: string|undefined;
+    protected static callGraphOutPath: string | undefined;
 
     /// The labels output path.
-    protected static lblsOutPath: string|undefined;
+    protected static lblsOutPath: string | undefined;
 
     /// The labels input path.
-    protected static commentsPath: string|undefined;
+    protected static commentsPath: string | undefined;
 
     /// The out path for the flow-chart dot file.
-    protected static flowChartOutPath: string|undefined;
+    protected static flowChartOutPath: string | undefined;
 
     /// The flow chart start address.
     protected static flowChartStartAddresses = new Array<number>();
@@ -42,7 +42,7 @@ class Startup {
      */
     public static main(): number {
         try {
-             // Set defaults
+            // Set defaults
             this.dasm.opcodesLowerCase = true;
             this.dasm.addOpcodeBytes = false;
 
@@ -59,7 +59,7 @@ class Startup {
             const args = process.argv.splice(2);
 
             // Check for help
-            if(args.length == 0) {
+            if (args.length == 0) {
                 this.printHelp();
                 return 0;
             }
@@ -68,50 +68,50 @@ class Startup {
             this.processArgs(args);
 
             // Check if any output is given
-            if(!this.outPath && !this.callGraphOutPath && !this.flowChartOutPath) {
+            if (!this.outPath && !this.callGraphOutPath && !this.flowChartOutPath) {
                 throw "You need to set an output path via '--out' or '--callgraphout'.";
             }
 
             // Lower case opcodes?
-            if(this.dasm.opcodesLowerCase)
+            if (this.dasm.opcodesLowerCase)
                 Opcode.makeLowerCase();
 
             // infile with comments for the labels
-            if(this.commentsPath)
+            if (this.commentsPath)
                 this.dasm.setAddressComments(this.commentsPath);
 
             // Execute
             this.dasm.disassemble();
 
             // Output disassembly
-            if(this.outPath) {
+            if (this.outPath) {
                 // disssembly to file
                 const text = this.dasm.getDisassemblyText();
                 writeFileSync(this.outPath, text);
             }
 
             // Output dot (graphviz)
-            if(this.callGraphOutPath) {
+            if (this.callGraphOutPath) {
                 // Calculate reverted map.
                 this.dasm.createRevertedLabelMap();
                 let chosenLabels = this.dasm.graphLabels;
-                if(chosenLabels.length) {
+                if (chosenLabels.length) {
                     // Print just a few callgraphs, one dot file for each.
                     // Get path and extension.
                     let mainPath = this.callGraphOutPath;
                     const ext = Path.extname(mainPath);
                     let k = mainPath.lastIndexOf('.');
-                    if(k >= 0)
-                        mainPath = mainPath.substr(0,k);
+                    if (k >= 0)
+                        mainPath = mainPath.substr(0, k);
                     mainPath += '_';
                     // Loop over all labels the user wanted
-                    for(const addrString of this.dasm.graphLabels) {
+                    for (const addrString of this.dasm.graphLabels) {
                         // Name
                         let name = addrString;
-                        if(typeof(name) == 'number') {
+                        if (typeof (name) == 'number') {
                             // convert to label
                             const label = this.dasm.labels.get(name);
-                            if(label && label.name)
+                            if (label && label.name)
                                 name = label.name;
                             else
                                 name = '0x' + name.toString(16);
@@ -130,23 +130,23 @@ class Startup {
                     const text = this.dasm.getCallGraph(this.dasm.labels);
                     writeFileSync(this.callGraphOutPath, text);
                 }
-             }
+            }
 
             // Output flow-chart file
-            if(this.flowChartOutPath) {
+            if (this.flowChartOutPath) {
                 // Check if start address given
-                if(this.flowChartStartAddresses.length == 0)
+                if (this.flowChartStartAddresses.length == 0)
                     throw "You need to set at least one start address for a flow chart with '--flowchartaddresses'";
                 // Print flowcharts, one dot file for each.
                 // Get path and extension.
                 let mainPath = this.flowChartOutPath;
                 const ext = Path.extname(mainPath);
                 let k = mainPath.lastIndexOf('.');
-                if(k >= 0)
-                    mainPath = mainPath.substr(0,k);
+                if (k >= 0)
+                    mainPath = mainPath.substr(0, k);
                 mainPath += '_';
                 // Loop over all labels the user wanted
-                for(const address of this.flowChartStartAddresses) {
+                for (const address of this.flowChartStartAddresses) {
                     // Name
                     const label = this.dasm.labels.get(address);
                     const name = (label) ? label.name : "0x" + address.toString(16);
@@ -159,13 +159,13 @@ class Startup {
             }
 
             // Output labels
-            if(this.lblsOutPath) {
+            if (this.lblsOutPath) {
                 const text = this.dasm.getMainLabels();
                 writeFileSync(this.lblsOutPath, text);
             }
 
         }
-        catch(e) {
+        catch (e) {
             console.error(e);
             return 1;
         }
@@ -201,6 +201,7 @@ z80dismblr [options]
         provide the arguments. May contain newlines.
     --sna file: Read in a ZX Spectrum snapshot file (48k format only, i.e. no ROM bank support).
     --bin start file: Read in a plain binary. 'start' is the address in memory for the read binary.
+    --msxbin file: Read in a MSX binary.
     You can use this argument several times to read inseveral binary files.
         --codelabel or --tr is mandatory to
         obtain any disassembly results.
@@ -346,9 +347,9 @@ z80dismblr [options]
         let addr;
         let text;
         let value;
-        while(arg = args.shift()) {
+        while (arg = args.shift()) {
             // Check option
-            switch(arg) {
+            switch (arg) {
                 // Help
                 case '--help':
                 case '-help':
@@ -369,7 +370,7 @@ z80dismblr [options]
                 // Arguments file
                 case '--args':
                     path = args.shift();
-                    if(!path) {
+                    if (!path) {
                         throw arg + ': No path given.';
                     }
                     // Read arguments from file
@@ -381,10 +382,19 @@ z80dismblr [options]
                 // SNA file
                 case '--sna':
                     path = args.shift();
-                    if(!path) {
+                    if (!path) {
                         throw arg + ': No path given.';
                     }
                     this.dasm.readSnaFile(path);
+                    break;
+
+                // MSX bin file
+                case '--msxbin':
+                    path = args.shift();
+                    if (!path) {
+                        throw arg + ': No path given.';
+                    }
+                    this.dasm.readMSXBinFile(path);
                     break;
 
                 // SNA file
@@ -392,12 +402,12 @@ z80dismblr [options]
                     // get origin
                     const originString = args.shift();
                     const origin = this.parseValue(originString);
-                    if(isNaN(origin)) {
+                    if (isNaN(origin)) {
                         throw arg + ": Not a number: " + originString;
                     }
                     // get path
                     path = args.shift();
-                    if(!path) {
+                    if (!path) {
                         throw arg + ': No path given.';
                     }
                     // set memory
@@ -407,7 +417,7 @@ z80dismblr [options]
                 // output disassembly file
                 case '--out':
                     this.outPath = args.shift();
-                    if(!this.outPath) {
+                    if (!this.outPath) {
                         throw arg + ': No path given.';
                     }
                     break;
@@ -415,7 +425,7 @@ z80dismblr [options]
                 // TRACE (.tr) file
                 case '--tr':
                     path = args.shift();
-                    if(!path) {
+                    if (!path) {
                         throw arg + ': No path given.';
                     }
                     this.dasm.useMameTraceFile(path);
@@ -426,13 +436,13 @@ z80dismblr [options]
                     // parse address
                     addressString = args.shift();
                     addr = this.parseValue(addressString);
-                    if(isNaN(addr)) {
+                    if (isNaN(addr)) {
                         throw arg + ": Not a number: " + addressString;
                     }
                     // Now optional name
                     let labelName = args.shift();
-                    if(labelName)
-                        if(labelName.startsWith('--')) {
+                    if (labelName)
+                        if (labelName.startsWith('--')) {
                             // is the next arguments
                             args.unshift(labelName);
                             labelName = undefined;
@@ -446,7 +456,7 @@ z80dismblr [options]
                     // parse address
                     addressString = args.shift();
                     addr = this.parseValue(addressString);
-                    if(isNaN(addr)) {
+                    if (isNaN(addr)) {
                         throw arg + ": Not a number: " + addressString;
                     }
                     // Set label
@@ -463,13 +473,13 @@ z80dismblr [options]
                     // parse address
                     addressString = args.shift();
                     addr = this.parseValue(addressString);
-                    if(isNaN(addr)) {
+                    if (isNaN(addr)) {
                         throw arg + ": Not a number: " + addressString;
                     }
                     // Now the size
                     const sizeString = args.shift();
                     const size = this.parseValue(sizeString);
-                    if(isNaN(size)) {
+                    if (isNaN(size)) {
                         throw arg + ": Not a number: " + sizeString;
                     }
                     // Set jump table
@@ -488,7 +498,7 @@ z80dismblr [options]
                 case '--subprefix':
                     // get prefix
                     text = args.shift();
-                    if(!text || text.length == 0)
+                    if (!text || text.length == 0)
                         throw arg + ": No prefix given";
                     // Set prefix
                     this.dasm.labelSubPrefix = text;
@@ -498,7 +508,7 @@ z80dismblr [options]
                 case '--lblprefix':
                     // get prefix
                     text = args.shift();
-                    if(!text || text.length == 0)
+                    if (!text || text.length == 0)
                         throw arg + ": No prefix given";
                     // Set prefix
                     this.dasm.labelLblPrefix = text;
@@ -508,7 +518,7 @@ z80dismblr [options]
                 case '--rstprefix':
                     // get prefix
                     text = args.shift();
-                    if(!text || text.length == 0)
+                    if (!text || text.length == 0)
                         throw arg + ": No prefix given";
                     // Set prefix
                     this.dasm.labelRstPrefix = text;
@@ -518,7 +528,7 @@ z80dismblr [options]
                 case '--datalblprefix':
                     // get prefix
                     text = args.shift();
-                    if(!text || text.length == 0)
+                    if (!text || text.length == 0)
                         throw arg + ": No prefix given";
                     // Set prefix
                     this.dasm.labelDataLblPrefix = text;
@@ -528,7 +538,7 @@ z80dismblr [options]
                 case '--locallblprefix':
                     // get prefix
                     text = args.shift();
-                    if(!text || text.length == 0)
+                    if (!text || text.length == 0)
                         throw arg + ": No prefix given";
                     // Set prefix
                     this.dasm.labelLocalLabelPrefix = text;
@@ -538,7 +548,7 @@ z80dismblr [options]
                 case '--localloopprefix':
                     // get prefix
                     text = args.shift();
-                    if(!text || text.length == 0)
+                    if (!text || text.length == 0)
                         throw arg + ": No prefix given";
                     // Set prefix
                     this.dasm.labelLoopPrefix = text;
@@ -548,7 +558,7 @@ z80dismblr [options]
                 case '--selfmodprefix':
                     // get prefix
                     text = args.shift();
-                    if(!text || text.length == 0)
+                    if (!text || text.length == 0)
                         throw arg + ": No prefix given";
                     // Set prefix
                     this.dasm.labelSelfModifyingPrefix = text;
@@ -562,8 +572,8 @@ z80dismblr [options]
                     // get value
                     text = args.shift();
                     value = this.parseValue(text);
-                    if(isNaN(value))
-                       throw arg + ": Wrong value " + text;
+                    if (isNaN(value))
+                        throw arg + ": Wrong value " + text;
                     this.dasm.clmnsAddress = value;
                     break;
 
@@ -572,8 +582,8 @@ z80dismblr [options]
                     // get value
                     text = args.shift();
                     value = this.parseValue(text);
-                    if(isNaN(value))
-                       throw arg + ": Wrong value " + text;
+                    if (isNaN(value))
+                        throw arg + ": Wrong value " + text;
                     this.dasm.clmnsBytes = value;
                     break;
 
@@ -582,8 +592,8 @@ z80dismblr [options]
                     // get value
                     text = args.shift();
                     value = this.parseValue(text);
-                    if(isNaN(value))
-                       throw arg + ": Wrong value " + text;
+                    if (isNaN(value))
+                        throw arg + ": Wrong value " + text;
                     this.dasm.clmnsOpcodeFirstPart = value;
                     break;
 
@@ -592,8 +602,8 @@ z80dismblr [options]
                     // get value
                     text = args.shift();
                     value = this.parseValue(text);
-                    if(isNaN(value))
-                       throw arg + ": Wrong value " + text;
+                    if (isNaN(value))
+                        throw arg + ": Wrong value " + text;
                     this.dasm.clmsnOpcodeTotal = value;
                     break;
 
@@ -613,7 +623,7 @@ z80dismblr [options]
                 // output dot file
                 case '--callgraphout':
                     this.callGraphOutPath = args.shift();
-                    if(!this.callGraphOutPath) {
+                    if (!this.callGraphOutPath) {
                         throw arg + ': No path given.';
                     }
                     break;
@@ -621,7 +631,7 @@ z80dismblr [options]
                 // Format string for the dot nodes
                 case '--callgraphnodeformat':
                     const nodeformat = args.shift();
-                    if(!nodeformat) {
+                    if (!nodeformat) {
                         throw arg + ': No format string given.';
                     }
                     this.dasm.nodeFormatString = nodeformat;
@@ -630,7 +640,7 @@ z80dismblr [options]
                 // Format string for the dot nodes
                 case '--callgraphformat':
                     const dotformat = args.shift();
-                    if(!dotformat) {
+                    if (!dotformat) {
                         throw arg + ': No format string given.';
                     }
                     this.dasm.dotFormatString = dotformat;
@@ -638,13 +648,13 @@ z80dismblr [options]
 
                 // Highlight certain addressed in dot file
                 case '--callgraphhighlight':
-                    while(true) {
+                    while (true) {
                         // parse address
                         const addressColorString = args.shift();
-                        if(!addressColorString)
+                        if (!addressColorString)
                             break;
                         // Check for next option
-                        if(addressColorString.startsWith('--')) {
+                        if (addressColorString.startsWith('--')) {
                             // is the next arguments
                             args.unshift(addressColorString);
                             break;
@@ -653,10 +663,10 @@ z80dismblr [options]
                         const k = addressColorString.indexOf('=');
                         let colorString;
                         let addressString
-                        if(k >= 0) {
+                        if (k >= 0) {
                             // parse color
-                            colorString = addressColorString.substr(k+1);
-                            addressString = addressColorString.substr(0,k);
+                            colorString = addressColorString.substr(k + 1);
+                            addressString = addressColorString.substr(0, k);
                         }
                         else {
                             // use default color
@@ -664,7 +674,7 @@ z80dismblr [options]
                             addressString = addressColorString;
                         }
                         addr = this.parseValue(addressString);
-                        if(isNaN(addr)) {
+                        if (isNaN(addr)) {
                             // Not a number, so it's a label string
                             // Add label/color pair to map
                             this.dasm.setDotHighlightAddress(addressString, colorString);
@@ -679,12 +689,12 @@ z80dismblr [options]
                 case '--callgraphnode':
                     {
                         const node = args.shift();
-                        if(!node) {
+                        if (!node) {
                             throw arg + ': No node given.';
                         }
                         // Node can be number or label. Try to convert  to number first
                         const addr = this.parseValue(node);
-                        if(isNaN(addr))
+                        if (isNaN(addr))
                             this.dasm.graphLabels.push(node);
                         else {
                             // Number
@@ -700,7 +710,7 @@ z80dismblr [options]
                 // Labels out file (this is an option more for debugging, not mentioned in help)
                 case '--lblsout':
                     this.lblsOutPath = args.shift();
-                    if(!this.lblsOutPath) {
+                    if (!this.lblsOutPath) {
                         throw arg + ': No path given.';
                     }
                     break;
@@ -708,7 +718,7 @@ z80dismblr [options]
                 // Comments/labels in file
                 case '--comments':
                     this.commentsPath = args.shift();
-                    if(!this.commentsPath) {
+                    if (!this.commentsPath) {
                         throw arg + ': No path given.';
                     }
                     break;
@@ -719,26 +729,26 @@ z80dismblr [options]
                 // Flow-Chart outfile
                 case '--flowchartout':
                     this.flowChartOutPath = args.shift();
-                    if(!this.flowChartOutPath) {
+                    if (!this.flowChartOutPath) {
                         throw arg + ': No path given.';
                     }
                     break;
 
                 // The addresses for the flow charts
                 case '--flowchartaddresses':
-                    while(true) {
+                    while (true) {
                         // parse address
                         const addressString = args.shift();
-                        if(!addressString)
+                        if (!addressString)
                             break;
                         // Check for next option
-                        if(addressString.startsWith('--')) {
+                        if (addressString.startsWith('--')) {
                             // is the next arguments
                             args.unshift(addressString);
                             break;
                         }
                         addr = this.parseValue(addressString);
-                        if(isNaN(addr)) {
+                        if (isNaN(addr)) {
                             throw arg + ": Not a number: " + addressString;
                         }
                         // Add to array
@@ -751,19 +761,19 @@ z80dismblr [options]
                 case '--opcode':
                     // opcode byte
                     const byteString = args.shift();
-                    if(!byteString) {
+                    if (!byteString) {
                         throw arg + ': No opcode given.';
                     }
                     const byteVal = this.parseValue(byteString);
-                    if(isNaN(byteVal)) {
+                    if (isNaN(byteVal)) {
                         throw arg + ': opcode is not-a-number: ' + byteString;
                     }
-                    if(byteVal < 0 || byteVal > 255) {
+                    if (byteVal < 0 || byteVal > 255) {
                         throw arg + ': opcode is out of range [0-255]: ' + byteString;
                     }
                     // append text
                     const appendText = args.shift();
-                    if(!appendText) {
+                    if (!appendText) {
                         throw arg + ': No opcode append text given.';
                     }
                     // Append opcode
@@ -786,43 +796,43 @@ z80dismblr [options]
         const args = new Array<string>();
         let k = 0;
         const len = argsData.length;
-        while(true) {
+        while (true) {
             let val;
-            while(true) {
+            while (true) {
                 // skip whitespaces
                 k = this.skipWhiteSpaces(argsData, k);
-                if(k >= len)
+                if (k >= len)
                     return args;    // End of file reached
                 // check for comment
                 val = argsData[k];
-                if(val != '#')
+                if (val != '#')
                     break;
                 // skip comment
-                k = argsData.indexOf('\n', k+1);
-                if(k < 0)
+                k = argsData.indexOf('\n', k + 1);
+                if (k < 0)
                     return args;  // End of file reached
             }
 
             // Check if first character is a ' or "
             let l;
-            if(val == '"' || val == "'") {
+            if (val == '"' || val == "'") {
                 // Search for ending
-                k ++;
+                k++;
                 l = argsData.indexOf(val, k);
-                if(l < 0) {
+                if (l < 0) {
                     throw "Couldn't find closing " + val + " in " + path;
                 }
                 // get string
-                const arg = argsData.substr(k, l-k);
+                const arg = argsData.substr(k, l - k);
                 args.push(arg);
                 // next
-                k = l+1;
+                k = l + 1;
             }
             else {
                 // search for next whitespace (== ending)
-                l = this.findWhiteSpace(argsData, k+1);
+                l = this.findWhiteSpace(argsData, k + 1);
                 // get string
-                const arg = argsData.substr(k, l-k);
+                const arg = argsData.substr(k, l - k);
                 args.push(arg);
                 // next
                 k = l;
@@ -840,12 +850,12 @@ z80dismblr [options]
      */
     protected static skipWhiteSpaces(s: string, i: number): number {
         const len = s.length;
-        while(i < len) {
+        while (i < len) {
             const val = s[i];
-            if(this.whiteSpaces.indexOf(val) < 0)
+            if (this.whiteSpaces.indexOf(val) < 0)
                 break;
             // next
-            i ++;
+            i++;
         }
         return i;
     }
@@ -859,105 +869,105 @@ z80dismblr [options]
      */
     protected static findWhiteSpace(s: string, i: number): number {
         const len = s.length;
-        while(i < len) {
+        while (i < len) {
             const val = s[i];
-            if(this.whiteSpaces.indexOf(val) >= 0)
+            if (this.whiteSpaces.indexOf(val) >= 0)
                 break;
             // next
-            i ++;
+            i++;
         }
         return i;
     }
 
 
     /**
-	 * Parses a string and converts it to a number.
-	 * The string might be decimal or in an hex format.
-	 * If the string begins with '0x' or '$' or ends with 'h' or 'H'
-	 * it is assumed to be a hex value.
-	 * If the string ends with 'b' or 'B' a bit value is assumed.
-	 * Otherwise decimal is used.
-	 * If the string starts with _ a flag value is assumed. I.e. following flags
-	 * are allowed: SZHPNC
-	 * Otherwise decimal is used.
-	 * @param valueString The string to convert. Ignores case.
-	 * @returns The value of valueString. Can also return NaN in error cases.
-	 */
-	public static parseValue(valueString: string|undefined): number {
-        if(!valueString)
+     * Parses a string and converts it to a number.
+     * The string might be decimal or in an hex format.
+     * If the string begins with '0x' or '$' or ends with 'h' or 'H'
+     * it is assumed to be a hex value.
+     * If the string ends with 'b' or 'B' a bit value is assumed.
+     * Otherwise decimal is used.
+     * If the string starts with _ a flag value is assumed. I.e. following flags
+     * are allowed: SZHPNC
+     * Otherwise decimal is used.
+     * @param valueString The string to convert. Ignores case.
+     * @returns The value of valueString. Can also return NaN in error cases.
+     */
+    public static parseValue(valueString: string | undefined): number {
+        if (!valueString)
             return NaN;
 
-		const match = /^\s*((0x|\$)([0-9a-f]+)([^0-9a-f]*))?(([0-9a-f]+)h(.*))?(([01]+)b(.*))?(_([szhnpc]+)([^szhnpc])*)?((-?[0-9]+)([^0-9]*))?('([\S ]+)')?/i.exec(valueString);
-		if(!match)
-			return NaN;	// Error during parsing
+        const match = /^\s*((0x|\$)([0-9a-f]+)([^0-9a-f]*))?(([0-9a-f]+)h(.*))?(([01]+)b(.*))?(_([szhnpc]+)([^szhnpc])*)?((-?[0-9]+)([^0-9]*))?('([\S ]+)')?/i.exec(valueString);
+        if (!match)
+            return NaN;	// Error during parsing
 
-		const ghex = match[3];	// 0x or $
-		const ghex_empty = match[4];	// should be empty
+        const ghex = match[3];	// 0x or $
+        const ghex_empty = match[4];	// should be empty
 
-		const ghexh = match[6];	// h
-		const ghexh_empty = match[7];	// should be empty
+        const ghexh = match[6];	// h
+        const ghexh_empty = match[7];	// should be empty
 
-		const gbit = match[9];	// b
-		const gbit_empty = match[10];	// should be empty
+        const gbit = match[9];	// b
+        const gbit_empty = match[10];	// should be empty
 
-		var gflags = match[12];	// _
-		const gflags_empty = match[13];	// should be empty
+        var gflags = match[12];	// _
+        const gflags_empty = match[13];	// should be empty
 
-		const gdec = match[15];	// decimal
-		const gdec_empty = match[16];	// should be empty
+        const gdec = match[15];	// decimal
+        const gdec_empty = match[16];	// should be empty
 
-		var gchar = match[18];	// ASCII character
+        var gchar = match[18];	// ASCII character
 
-		// Hex
-		if(ghex) {
-			if(ghex_empty)
-				return NaN;
-			return parseInt(ghex, 16);
-		}
-		if(ghexh) {
-			if(ghexh_empty)
-				return NaN;
-			return parseInt(ghexh, 16);
-		}
+        // Hex
+        if (ghex) {
+            if (ghex_empty)
+                return NaN;
+            return parseInt(ghex, 16);
+        }
+        if (ghexh) {
+            if (ghexh_empty)
+                return NaN;
+            return parseInt(ghexh, 16);
+        }
 
-		// Decimal
-		if(gdec) {
-			if(gdec_empty)
-				return NaN;
-			return parseInt(gdec, 10);
-		}
-		// Bits
-		if(gbit) {
-			if(gbit_empty)
-				return NaN;
-			return parseInt(gbit, 2);
-		}
+        // Decimal
+        if (gdec) {
+            if (gdec_empty)
+                return NaN;
+            return parseInt(gdec, 10);
+        }
+        // Bits
+        if (gbit) {
+            if (gbit_empty)
+                return NaN;
+            return parseInt(gbit, 2);
+        }
 
-		// Check if status flag value
-		if(gflags) {
+        // Check if status flag value
+        if (gflags) {
             if (gflags_empty) {
                 return NaN;
             }
             gflags = gflags.toLowerCase();
-			let flags = 0;
-			if(gflags.includes('s')) flags |= 0x80;
-			if(gflags.includes('z')) flags |= 0x40;
-			if(gflags.includes('h')) flags |= 0x10;
-			if(gflags.includes('p')) flags |= 0x04;
-			if(gflags.includes('n')) flags |= 0x02;
-			if(gflags.includes('c')) flags |= 0x01;
-			return flags;
-		}
+            let flags = 0;
+            if (gflags.includes('s')) flags |= 0x80;
+            if (gflags.includes('z')) flags |= 0x40;
+            if (gflags.includes('h')) flags |= 0x10;
+            if (gflags.includes('p')) flags |= 0x04;
+            if (gflags.includes('n')) flags |= 0x02;
+            if (gflags.includes('c')) flags |= 0x01;
+            return flags;
+        }
 
-		// ASCII character
-		if(gchar) {
-			if(gchar.length < 1)
-				return NaN;
-			return gchar.charCodeAt(0);
-		}
+        // ASCII character
+        if (gchar) {
+            if (gchar.length < 1)
+                return NaN;
+            return gchar.charCodeAt(0);
+        }
 
-		// Unknown
-		return NaN;
+        // Unknown
+        return NaN;
     }
 
 }
