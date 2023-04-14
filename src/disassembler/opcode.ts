@@ -1,9 +1,9 @@
 import * as util from 'util';
 import * as assert from 'assert';
-import {BaseMemory} from './basememory';
-import {Memory, MemAttribute} from './memory';
-import {NumberType} from './numbertype'
-import {Format} from './format';
+import { BaseMemory } from './basememory';
+import { Memory, MemAttribute } from './memory';
+import { NumberType } from './numbertype'
+import { Format } from './format';
 
 
 /// Classifies opcodes.
@@ -70,7 +70,7 @@ export class Opcode {
 		if (Opcode.convertToLabelHandler)
 			valueString = Opcode.convertToLabelHandler(value);
 		if (!valueString) {
-			valueString = Format.getHexString(value) + 'h';
+			valueString = '0x' + Format.getHexString(value);
 		}
 		return valueString;
 	}
@@ -375,13 +375,13 @@ export class Opcode {
 	   * @param memory The memory area. Used to distinguish if the access is maybe wrong.
 	 * If this is not required (comment) the parameter can be omitted.
 	 */
-	public disassemble(memory?: Memory): {mnemonic: string, comment: string} {
+	public disassemble(memory?: Memory): { mnemonic: string, comment: string } {
 		// optional comment
 		let comment = '';
 
 		// Check if there is any value
 		if (this.valueType == NumberType.NONE) {
-			return {mnemonic: this.name, comment: this.comment};
+			return { mnemonic: this.name, comment: this.comment };
 		}
 
 		// Get referenced label name
@@ -427,7 +427,7 @@ export class Opcode {
 		}
 		else if (this.valueType == NumberType.CODE_RST) {
 			// Use value instead of label (looks better)
-			valueName = Format.getHexString(this.value, 2) + 'h';
+			valueName = '0x' + Format.getHexString(this.value, 2);
 		}
 		else {
 			// Use direct value
@@ -435,12 +435,12 @@ export class Opcode {
 			// Add comment
 			if (this.valueType == NumberType.NUMBER_BYTE) {
 				// byte
-				valueName = Format.getHexString(val, 2) + 'h';
+				valueName = '0x' + Format.getHexString(val, 2);
 				comment = Format.getVariousConversionsForByte(val);
 			}
 			else {
 				// word
-				valueName = Format.getHexString(val, 4) + 'h';
+				valueName = '0x' + Format.getHexString(val, 4);
 				comment = Format.getVariousConversionsForWord(val);
 			}
 		}
@@ -459,7 +459,7 @@ export class Opcode {
 				const vType = this.appendValueTypes[k];
 				const val = this.appendValues[k];
 				let valName = (vType == NumberType.NUMBER_BYTE) ? Format.getHexString(val, 2) : Format.getHexString(val, 4);
-				valName += 'h';
+				valName = '0x' + valName;
 				vals.push(valName);
 			}
 			opCodeString = util.format(this.name, valueName, ...vals);
@@ -478,7 +478,7 @@ export class Opcode {
 			comment = '';
 		}
 
-		return {mnemonic: opCodeString, comment: comment};
+		return { mnemonic: opCodeString, comment: comment };
 	}
 }
 
@@ -578,14 +578,14 @@ class OpcodeIndexImmediate extends Opcode {
 	 * @param memory The memory area. Used to distinguish if the access is maybe wrong.
 	 * If this is not required (comment) the parameter can be omitted.
 	 */
-	public disassemble(memory?: Memory): {mnemonic: string, comment: string} {
+	public disassemble(memory?: Memory): { mnemonic: string, comment: string } {
 		const dasm = super.disassemble(memory);
 		// Results e.g. in "LD (IX+6),%s"
 
-		const valueName = Format.getHexString(this.secondValue, 2) + 'h';
+		const valueName = '0x' + Format.getHexString(this.secondValue, 2);
 		const comment = Format.getVariousConversionsForByte(this.secondValue);
 		const dasm2 = util.format(dasm.mnemonic, valueName);
-		return {mnemonic: dasm2, comment};
+		return { mnemonic: dasm2, comment };
 	}
 }
 
@@ -697,10 +697,10 @@ class OpcodeNextPush extends OpcodeNext {
 class OpcodeNext_nextreg_n_a extends OpcodeNext {
 	/// Disassemble the next register.
 	/// (1 byte value)
-	public disassemble(): {mnemonic: string, comment: string} {
+	public disassemble(): { mnemonic: string, comment: string } {
 		const regname = OpcodeNext_nextreg_n_a.getRegisterName(this.value);
 		const opCodeString = util.format(this.name, regname);
-		return {mnemonic: opCodeString, comment: this.comment};
+		return { mnemonic: opCodeString, comment: this.comment };
 	}
 
 	/**
@@ -779,7 +779,7 @@ class OpcodeNext_nextreg_n_a extends OpcodeNext {
 
 			default:
 				// unknown
-				regname = Format.getHexString(regId, 2) + 'h';
+				regname = '0x' + Format.getHexString(regId, 2);
 				break;
 		}
 		return regname;
@@ -811,13 +811,13 @@ class OpcodeNext_nextreg_n_n extends OpcodeNext_nextreg_n_a {
 
 	/// Disassemble the 2 values.
 	/// Both are #n (1 byte values)
-	public disassemble(): {mnemonic: string, comment: string} {
+	public disassemble(): { mnemonic: string, comment: string } {
 		const regId = this.value;
 		const regValue = this.value2;
 		const regname = OpcodeNext_nextreg_n_a.getRegisterName(regId);
 		const valuename = OpcodeNext_nextreg_n_n.getRegisterValueName(regId, regValue);
 		const opCodeString = util.format(this.name, regname, valuename);
-		return {mnemonic: opCodeString, comment: this.comment};
+		return { mnemonic: opCodeString, comment: this.comment };
 	}
 
 	/**
@@ -850,7 +850,7 @@ class OpcodeNext_nextreg_n_n extends OpcodeNext_nextreg_n_a {
 				break;
 
 			case 2: // REG_RESET
-				valuename = Format.getHexString(regValue, 2) + 'h';
+				valuename = '0x' + Format.getHexString(regValue, 2);
 				arr = new Array<string>();
 				if (regValue & 0x04)
 					arr.push("RR_POWER_ON_RESET");
@@ -863,7 +863,7 @@ class OpcodeNext_nextreg_n_n extends OpcodeNext_nextreg_n_a {
 				break;
 
 			case 3: // REG_MACHINE_TYPE
-				valuename = Format.getHexString(regValue, 2) + 'h';
+				valuename = '0x' + Format.getHexString(regValue, 2);
 				arr = new Array<string>();
 				if (regValue & 0x80)
 					arr.push("lock timing");
@@ -1106,7 +1106,7 @@ class OpcodeNext_nextreg_n_n extends OpcodeNext_nextreg_n_a {
 
 		// Check if undefined
 		if (!valuename)
-			valuename = Format.getHexString(regValue, 2) + 'h';
+			valuename = '0x' + Format.getHexString(regValue, 2);
 		return valuename;
 	}
 }

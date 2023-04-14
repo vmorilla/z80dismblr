@@ -1,16 +1,16 @@
 //import * as util from 'util';
 import * as assert from 'assert';
-import {DelayedLog} from './delayedlog';
-import {MAX_MEM_SIZE} from './basememory';
-import {Memory, MemAttribute} from './memory';
-import {Opcode, OpcodeFlag} from './opcode';
-import {NumberType, getNumberTypeAsString} from './numbertype'
-import {DisLabel} from './dislabel';
-import {Comment} from './comment';
-import {SubroutineStatistics} from './statistics';
-import {EventEmitter} from 'events';
-import {Format} from './format';
-import {readFileSync} from 'fs';
+import { DelayedLog } from './delayedlog';
+import { MAX_MEM_SIZE } from './basememory';
+import { Memory, MemAttribute } from './memory';
+import { Opcode, OpcodeFlag } from './opcode';
+import { NumberType, getNumberTypeAsString } from './numbertype'
+import { DisLabel } from './dislabel';
+import { Comment } from './comment';
+import { SubroutineStatistics } from './statistics';
+import { EventEmitter } from 'events';
+import { Format } from './format';
+import { readFileSync } from 'fs';
 
 
 
@@ -49,10 +49,10 @@ export class Disassembler extends EventEmitter {
 	protected subroutineStatistics = new Map<DisLabel, SubroutineStatistics>();
 
 	/// The statistics maximum
-	protected statisticsMax: SubroutineStatistics = {sizeInBytes: 0, countOfInstructions: 0, CyclomaticComplexity: 0};
+	protected statisticsMax: SubroutineStatistics = { sizeInBytes: 0, countOfInstructions: 0, CyclomaticComplexity: 0 };
 
 	/// The statistics minimum
-	protected statisticsMin: SubroutineStatistics = {sizeInBytes: Number.MAX_SAFE_INTEGER, countOfInstructions: Number.MAX_SAFE_INTEGER, CyclomaticComplexity: Number.MAX_SAFE_INTEGER};
+	protected statisticsMin: SubroutineStatistics = { sizeInBytes: Number.MAX_SAFE_INTEGER, countOfInstructions: Number.MAX_SAFE_INTEGER, CyclomaticComplexity: Number.MAX_SAFE_INTEGER };
 
 	/// Labels that should be marked (with a color) are put here. String contains the color of the label for the dot graphic.
 	protected dotMarkedLabels = new Map<number | string, string>();
@@ -568,7 +568,7 @@ export class Disassembler extends EventEmitter {
 					firstLabel = false;
 				}
 				// "Disassemble"
-				const statement = Format.addSpaces(label.name + ':', this.clmnsBytes - 1) + ' ' + this.rightCase('EQU ') + Format.fillDigits(Format.getHexString(address, 4), ' ', 5) + 'h';
+				const statement = Format.addSpaces(label.name + ':', this.clmnsBytes - 1) + ' ' + this.rightCase('EQU ') + '0x' + Format.getHexString(address, 4);
 				// Comment
 				const comment = this.addressComments.get(address);
 				const commentLines = Comment.getLines(comment, statement, this.disableCommentsInDisassembly);
@@ -1008,7 +1008,7 @@ export class Disassembler extends EventEmitter {
 	 * @param address The start address of the path.
 	 * @returns The found label or undefined if nothing found.
 	 */
-	protected findNextFlowThroughLabel(address: number,): {label: DisLabel, address: number} | undefined {
+	protected findNextFlowThroughLabel(address: number,): { label: DisLabel, address: number } | undefined {
 		// Check if memory exists
 		let memAttr = this.memory.getAttributeAt(address);
 		if (!(memAttr & MemAttribute.ASSIGNED)) {
@@ -1032,7 +1032,7 @@ export class Disassembler extends EventEmitter {
 				switch (type) {
 					case NumberType.CODE_LBL:
 					case NumberType.CODE_SUB:
-						return {label: foundLabel, address: prevAddress};
+						return { label: foundLabel, address: prevAddress };
 				}
 			}
 
@@ -1121,7 +1121,7 @@ export class Disassembler extends EventEmitter {
 
 			// check opcode
 			const opcode = Opcode.getOpcodeAt(this.memory, address);
-			opcodeClone = {...opcode};	// Required otherwise opcode is overwritten on next call to 'getOpcodeAt' if it's the same opcode.
+			opcodeClone = { ...opcode };	// Required otherwise opcode is overwritten on next call to 'getOpcodeAt' if it's the same opcode.
 
 			// Check if RET
 			if (opcodeClone.flags & OpcodeFlag.RET) {
@@ -1261,7 +1261,7 @@ export class Disassembler extends EventEmitter {
 
 			// check opcode
 			const opcode = Opcode.getOpcodeAt(this.memory, address);
-			opcodeClone = {...opcode};	// Required otherwise opcode is overwritten on next call to 'getOpcodeAt' if it's the same opcode.
+			opcodeClone = { ...opcode };	// Required otherwise opcode is overwritten on next call to 'getOpcodeAt' if it's the same opcode.
 
 			// Add to array
 			addrsArray.push(address);
@@ -1427,7 +1427,7 @@ export class Disassembler extends EventEmitter {
 
 			// check opcode
 			const opcode = Opcode.getOpcodeAt(this.memory, address);
-			opcodeClone = {...opcode};	// Required otherwise opcode is overwritten on next call to 'getOpcodeAt' if it's the same opcode.
+			opcodeClone = { ...opcode };	// Required otherwise opcode is overwritten on next call to 'getOpcodeAt' if it's the same opcode.
 
 			// Add to array
 			this.addressParents[address] = parentLabel;
@@ -1504,7 +1504,7 @@ export class Disassembler extends EventEmitter {
 				case NumberType.CODE_RST:
 					// Check if rst is turned off
 					if (this.rstDontFollowAddresses.indexOf(address) >= 0) {
-						const statistics = {sizeInBytes: 0, countOfInstructions: 0, CyclomaticComplexity: 0};
+						const statistics = { sizeInBytes: 0, countOfInstructions: 0, CyclomaticComplexity: 0 };
 						this.subroutineStatistics.set(label, statistics);
 						break;	// Don't count statistics.
 					}
@@ -1545,7 +1545,7 @@ export class Disassembler extends EventEmitter {
 	 * @returns statistics: size so far, cyclomatic complexity.
 	 */
 	protected countAddressStatistic(address: number, addresses: Array<number>): SubroutineStatistics {
-		let statistics = {sizeInBytes: 0, countOfInstructions: 0, CyclomaticComplexity: 0};
+		let statistics = { sizeInBytes: 0, countOfInstructions: 0, CyclomaticComplexity: 0 };
 
 		let opcodeClone;
 		do {
@@ -1561,7 +1561,7 @@ export class Disassembler extends EventEmitter {
 			addresses.push(address);
 			// check opcode
 			const opcode = Opcode.getOpcodeAt(this.memory, address);
-			opcodeClone = {...opcode};	// Required otherwise opcode is overwritten on next call to 'getOpcodeAt' if it's the same opcode.
+			opcodeClone = { ...opcode };	// Required otherwise opcode is overwritten on next call to 'getOpcodeAt' if it's the same opcode.
 
 			// Add statistics
 			statistics.sizeInBytes += opcodeClone.length;
@@ -1873,7 +1873,7 @@ export class Disassembler extends EventEmitter {
 					for (const ref of addrLabel.references) {
 						if (!first)
 							line2 += ', ';
-						const s = Format.getHexString(ref, 4) + 'h';
+						const s = '0x' + Format.getHexString(ref, 4);
 						const parent = this.addressParents[ref];
 						if (parent) {
 							let parName;
@@ -1932,7 +1932,7 @@ export class Disassembler extends EventEmitter {
 					if (refCount > 0) {
 						// Second line: The references
 						const refArray = [...addrLabel.references].map(addr => {
-							let s = Format.getHexString(addr, 4) + 'h';
+							let s = '0x' + Format.getHexString(addr, 4);
 							const parentLabel = this.addressParents[addr];
 							if (parentLabel) {
 								// Add e.g. start of subroutine
@@ -2108,7 +2108,7 @@ export class Disassembler extends EventEmitter {
 				// First line
 				// Print "ORG"
 				this.addEmptyLines(lines);
-				let orgLine = ' '.repeat(this.clmnsBytes) + this.rightCase('ORG ') + Format.getHexString(addr) + 'h';
+				let orgLine = ' '.repeat(this.clmnsBytes) + this.rightCase('ORG ') + '0x' + Format.getHexString(addr);
 				if (!this.disableCommentsInDisassembly)
 					orgLine += '; ' + Format.getConversionForAddress(addr);
 				lines.push(orgLine);
@@ -2121,7 +2121,7 @@ export class Disassembler extends EventEmitter {
 
 				// Print new "ORG"
 				this.addEmptyLines(lines);
-				let orgLine = ' '.repeat(this.clmnsBytes) + this.rightCase('ORG ') + Format.getHexString(addr) + 'h';
+				let orgLine = ' '.repeat(this.clmnsBytes) + this.rightCase('ORG ') + '0x' + Format.getHexString(addr);
 				if (!this.disableCommentsInDisassembly)
 					orgLine += '; ' + Format.getConversionForAddress(addr);
 				lines.push(orgLine);
@@ -2203,7 +2203,7 @@ export class Disassembler extends EventEmitter {
 					let memValue = this.memory.getValueAt(address);
 
 					// Disassemble the data line
-					let mainString = this.rightCase('DEFB ') + Format.getHexString(memValue, 2) + 'h';
+					let mainString = this.rightCase('DEFB ') + '0x' + Format.getHexString(memValue, 2);
 					commentText = Format.getVariousConversionsForByte(memValue);
 					line = this.formatDisassembly(address, 1, mainString);
 

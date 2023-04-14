@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import {BaseMemory} from './basememory';
+import { BaseMemory } from './basememory';
 
 
 export class Format {
@@ -84,7 +84,7 @@ export class Format {
 	 */
 	public static getConversionForAddress(value: number): string {
 		// word
-		let result = Format.getHexString(value) + 'h';
+		let result = '0x' + Format.getHexString(value);
 		// return
 		return result;
 	}
