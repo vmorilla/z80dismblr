@@ -28,7 +28,7 @@
             "command": "zsh",
             "args": [
                 "-c",
-                "rm *.zip; pkg -t node18-macos out/z80dismblr.js"
+                "pkg -t node18-macos --out-path out/ out/z80dismblr.js"
             ],
             "problemMatcher": []
         }
