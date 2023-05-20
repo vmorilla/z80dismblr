@@ -9,6 +9,7 @@
     "tslint": "eslint ./src/**/*.ts",
     "watch": "tsc -w -p ./src",
     "test": "mocha -u tdd 'out/**/*.test{s,}.js'",
+    "build": "pkg -t node18-macos --out-path out out/z80dismblr.js",
     "package": "vsce package",
     "publish": "vsce publish"
   },
