@@ -1,0 +1,19 @@
+--sna ../zxspectrum/double-tennis/roms/tennis.sna
+--comments ../zxspectrum/double-tennis/labels.cmt
+--lblsout out/tests/tennis.lbl
+--out out/tests/tennis.asm
+--codelabel fe7eh loader
+
+#bin 0 src/tests/data/zxngfw.bin
+#opcode 0xCF ", value=#n"
+#noautomaticaddr
+#rstend 8
+#callgraphnodeformat  "${label}\nCC=${CC}\nSize=${size}"
+#comments src/tests/data/zxngfw.dcmnt
+##codelabel 0x0B55 game.init
+#codelabel 0x00000251 joystick.init
+##callgraphhighlight game.init
+#callgraphnode 0x0B55
+#callgraphnode joystick.init
+#callgraphformat "rankdir=LR;"
+#callgraphout out/tests/zxngfw.dot

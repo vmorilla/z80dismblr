@@ -1,9 +1,9 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
 		{
 			"type": "node",
 			"request": "launch",
@@ -11,27 +11,32 @@
 			"cwd": "${workspaceFolder}",
 			"program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
 			"args": [
-				"-u", "tdd",
-				"--timeout", "999999",
+				"-u",
+				"tdd",
+				"--timeout",
+				"999999",
 				"--colors",
 				"./out/tests/"
 			],
-			"outFiles": [ "${workspaceFolder}/out/**/*.js" ],
+			"outFiles": [
+				"${workspaceFolder}/out/**/*.js"
+			],
 			"internalConsoleOptions": "openOnSessionStart"
 		},
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Launch Program",
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Launch Program",
 			"program": "${workspaceFolder}/out/z80dismblr.js",
 			//"cwd": "${workspaceFolder}/../asm/zxnext_game_framework",
 			"cwd": "${workspaceFolder}",
 			"args": [
 				//"--args", "out/zxngfw.dargs"
 				//"--bin", "0", "src/tests/data/zxngfw.bin",
-				"--args", "src/tests/data/zxngfw.dargs",
+				//"--args", "src/tests/data/zxngfw.dargs",
+				"--args",
+				"src/tests/data/tennis.args",
 				//"--callgraphout", "out/tests/zxngfw.dot",
-
 				//"--args", "argsfile2",
 				//"--args", "argsfile_esxdos",
 				//"--args", "argsfile3",
@@ -41,25 +46,19 @@
 				//"--addbytes",
 				//"--tr", "src/tests/data/sw_short.tr",
 				//"--tr", "src/tests/data/sw.tr",
-
 				//"--noautomaticaddr",
 				//"--codelabel", "0x735E", "SUB19",
 				//"--codelabel", "0x7390", "SUB20",
-
 				//"--callgraphhighlight", "0x7015=red",
-
 				//"--lblsout", "out/tests/out2.lbls",
 				//"--comments",  "out/tests/in2.lbls",
-
 				//"--flowchartout", "out/tests/msc.dot",
 				//"--flowchartaddresses", "CD10h", //"7015h", "A3ABh"
-
 				//"--opcode", "0xCF", "#n",	// RST 08
-
 			],
-            "outFiles": [
-                "${workspaceFolder}/**/*.js"
-            ]
-        }
-    ]
+			"outFiles": [
+				"${workspaceFolder}/**/*.js"
+			]
+		}
+	]
 }

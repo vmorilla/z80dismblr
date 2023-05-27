@@ -1779,10 +1779,12 @@ export class Disassembler extends EventEmitter {
 			// Set names
 			let index = 1;
 			for (let child of childLabels) {
-				const indexString = this.getIndex(index, digitCount);
-				child.name = '.' + localPrefix + this.labelLocalLabelPrefix;
-				if (count > 1)
-					child.name += indexString;
+				if (!child.name) {
+					const indexString = this.getIndex(index, digitCount);
+					child.name = '.' + localPrefix + this.labelLocalLabelPrefix;
+					if (count > 1)
+						child.name += indexString;
+				}
 				index++;
 			}
 		}
@@ -1794,10 +1796,12 @@ export class Disassembler extends EventEmitter {
 			// Set names
 			let index = 1;
 			for (let child of childLabels) {
-				const indexString = this.getIndex(index, digitCount);
+				if (!child.name) {
+					const indexString = this.getIndex(index, digitCount);
 				child.name = '.' + localPrefix + this.labelLoopPrefix;
-				if (count > 1)
-					child.name += indexString;
+					if (count > 1)
+						child.name += indexString;
+				}
 				index++;
 			}
 		}
@@ -2081,12 +2085,12 @@ export class Disassembler extends EventEmitter {
 
 		for (let [address, label] of this.labels) {
 
-			const type = label.type;
-			if (type != NumberType.CODE_SUB
-				&& type != NumberType.CODE_LBL
-				&& type != NumberType.CODE_RST
-				&& type != NumberType.DATA_LBL)
-				continue;
+			// const type = label.type;
+			// if (type != NumberType.CODE_SUB
+			// 	&& type != NumberType.CODE_LBL
+			// 	&& type != NumberType.CODE_RST
+			// 	&& type != NumberType.DATA_LBL)
+			// 	continue;
 
 			// Store address, label and comments
 			const addrLabelLine = Format.getHexString(address, 4) + '\t' + label.name;
